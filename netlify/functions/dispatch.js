@@ -1,6 +1,6 @@
 /**
  * Netlify Function: dispatch
- * IronPaw Forestry — Conversation Brain
+ * IronPaw Forestry — Conversation Engine (FINALIZED)
  * FULL FILE REPLACEMENT
  */
 
@@ -8,12 +8,8 @@ import Airtable from "airtable";
 import OpenAI from "openai";
 
 // -------------------------
-// ENV VARS REQUIRED
+// ENV VARS
 // -------------------------
-// OPENAI_API_KEY
-// AIRTABLE_API_KEY
-// AIRTABLE_BASE_ID
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -27,7 +23,7 @@ const base = Airtable.base(process.env.AIRTABLE_BASE_ID);
 // -------------------------
 // HELPERS
 // -------------------------
-function response(statusCode, body) {
+function respond(statusCode, body) {
   return {
     statusCode,
     headers: {
@@ -50,10 +46,8 @@ function getNextQuestion(step) {
       return "Is the area easily accessible for a skid steer and trailer?";
     case "access":
       return "What city or county is the property located in?";
-    case "location":
-      return "Thanks — that’s enough to prepare an estimate. Would you like me to schedule a site visit?";
     default:
-      return "Can you tell me a bit more about the property?";
+      return null;
   }
 }
 
@@ -62,21 +56,21 @@ function getNextQuestion(step) {
 // -------------------------
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
-    return response(405, { error: "Method not allowed" });
+    return respond(405, { error: "Method not allowed" });
   }
 
   const sessionId = event.headers["x-session-id"];
   if (!sessionId) {
-    return response(400, { error: "Missing session ID" });
+    return respond(400, { error: "Missing session ID" });
   }
 
   const { message } = JSON.parse(event.body || "{}");
   if (!message) {
-    return response(400, { error: "Missing message" });
+    return respond(400, { error: "Missing message" });
   }
 
   // -------------------------
-  // LOAD OR CREATE CONVO
+  // LOAD OR CREATE CONVERSATION
   // -------------------------
   let record;
 
@@ -88,31 +82,52 @@ export async function handler(event) {
     .firstPage();
 
   if (existing.length === 0) {
-    const created = await base("Conversations").create({
+    record = await base("Conversations").create({
       "Session ID": sessionId,
       "Step": "start",
-      "Last Question": "About how many acres are you looking to clear?",
     });
-    record = created;
   } else {
     record = existing[0];
   }
 
   const fields = record.fields;
-  let step = fields["Step"] || "start";
+  const step = fields["Step"] || "start";
 
   // -------------------------
-  // STORE USER ANSWER
+  // STOP CONDITION
+  // -------------------------
+  if (step === "complete") {
+    const summary = `
+Here’s what I’ve got so far:
+
+• Acreage: ${fields.Acreage}
+• Density: ${fields.Density}
+• Terrain: ${fields.Terrain}
+• Access: ${fields.Access}
+• Location: ${fields.Location}
+
+This looks like a good candidate for forestry mulching.
+The next step would be a site visit or a formal estimate.
+
+Would you like me to schedule that?
+`;
+
+    return respond(200, {
+      reply_text: summary.trim(),
+    });
+  }
+
+  // -------------------------
+  // STORE USER RESPONSE
   // -------------------------
   const updates = {};
 
-  if (step === "start") updates["Acreage"] = message;
-  if (step === "acreage") updates["Density"] = message;
-  if (step === "density") updates["Terrain"] = message;
-  if (step === "terrain") updates["Access"] = message;
-  if (step === "access") updates["Location"] = message;
+  if (step === "start") updates.Acreage = message;
+  if (step === "acreage") updates.Density = message;
+  if (step === "density") updates.Terrain = message;
+  if (step === "terrain") updates.Access = message;
+  if (step === "access") updates.Location = message;
 
-  // Advance step
   const stepOrder = [
     "start",
     "acreage",
@@ -125,33 +140,26 @@ export async function handler(event) {
   const nextStep =
     stepOrder[stepOrder.indexOf(step) + 1] || "complete";
 
-  updates["Step"] = nextStep;
+  updates.Step = nextStep;
 
   const nextQuestion = getNextQuestion(nextStep);
-  updates["Last Question"] = nextQuestion;
+  if (nextQuestion) {
+    updates["Last Question"] = nextQuestion;
+  }
 
   await base("Conversations").update(record.id, updates);
 
   // -------------------------
-  // AI RESPONSE (FRAMING ONLY)
+  // ASK NEXT QUESTION
   // -------------------------
-  const ai = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.3,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a calm forestry mulching coordinator. Ask one clear question at a time.",
-      },
-      {
-        role: "user",
-        content: nextQuestion,
-      },
-    ],
-  });
+  if (!nextQuestion) {
+    return respond(200, {
+      reply_text:
+        "Thanks — I have everything I need to prepare an estimate. Would you like to move forward?",
+    });
+  }
 
-  return response(200, {
-    reply_text: ai.choices[0].message.content,
+  return respond(200, {
+    reply_text: nextQuestion,
   });
 }
