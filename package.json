@@ -1,0 +1,11 @@
+{
+  "name": "ironpaw-forestry-site",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "airtable": "^0.12.2",
+    "stripe": "^16.2.0",
+    "twilio": "^4.23.0",
+    "@sendgrid/mail": "^8.1.4"
+  }
+}
