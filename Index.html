@@ -2,248 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IronPaw Forestry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>IronPaw Forestry | Forestry Mulching & Land Clearing – Memphis, TN</title>
-
-  <meta name="description" content="IronPaw Forestry provides professional forestry mulching, brush clearing, and land clearing services in Memphis, TN and surrounding areas. Get instant quotes and book online." />
-  <meta name="keywords" content="forestry mulching Memphis, land clearing Memphis, brush clearing Tennessee, IronPaw Forestry" />
-
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            iron: '#2f2a28',
-            forest: '#2f4f2f',
-            paw: '#8b5a2b'
-          }
-        }
-      }
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
     }
-  </script>
+
+    .chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 340px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      background: #2f5d32;
+      color: #fff;
+      padding: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-body {
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .msg {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      max-width: 90%;
+    }
+
+    .bot {
+      background: #e9efe9;
+      align-self: flex-start;
+    }
+
+    .user {
+      background: #2f5d32;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .chat-input button {
+      background: #2f5d32;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .chat-input input:focus {
+      outline: none;
+    }
+  </style>
 </head>
+<body>
 
-<body class="bg-gray-50 text-gray-800">
-
-  <!-- HEADER -->
-  <header class="bg-iron text-white">
-    <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-      <h1 class="text-2xl font-bold tracking-wide">IronPaw Forestry</h1>
-      <a href="tel:13464766729" class="bg-paw px-4 py-2 rounded text-sm font-semibold hover:opacity-90">
-        Call 1-346-IRONPAW
-      </a>
-    </div>
-  </header>
-
-  <!-- HERO -->
-  <section class="bg-white">
-    <div class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
-      <div>
-        <h2 class="text-4xl font-bold text-forest mb-6 leading-tight">
-          Forestry Mulching & Land Clearing<br>
-          Memphis & Mid-South
-        </h2>
-
-        <p class="text-lg mb-6">
-          IronPaw Forestry helps landowners reclaim overgrown property using professional
-          forestry mulching — no burning, no hauling, no mess.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-4">
-          <button id="openChat"
-            class="bg-forest text-white px-6 py-3 rounded font-semibold hover:opacity-90">
-            💬 Talk to the AI Foreman
-          </button>
-
-          <a href="tel:13464766729"
-            class="border border-forest text-forest px-6 py-3 rounded font-semibold text-center">
-            📞 Call Now
-          </a>
-        </div>
-      </div>
-
-      <div class="bg-gray-100 rounded-lg p-8 text-center text-sm">
-        <p class="mb-2 text-gray-600">Serving within 50–100 miles of</p>
-        <p class="font-semibold">
-          Memphis • Bartlett • Germantown • Collierville<br>
-          Tipton County • Fayette County • DeSoto County
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SERVICES -->
-  <section class="bg-gray-100 py-16">
-    <div class="max-w-7xl mx-auto px-6">
-      <h3 class="text-3xl font-bold text-center mb-10">Our Services</h3>
-
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white p-6 rounded shadow">
-          <h4 class="font-semibold text-xl mb-2">Forestry Mulching</h4>
-          <p>Efficiently clear trees and brush by grinding vegetation into mulch onsite.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded shadow">
-          <h4 class="font-semibold text-xl mb-2">Brush & Overgrowth Clearing</h4>
-          <p>Reclaim neglected land, fence lines, and wooded lots.</p>
-        </div>
-
-        <div class="bg-white p-6 rounded shadow">
-          <h4 class="font-semibold text-xl mb-2">Lot & Land Prep</h4>
-          <p>Prepare property for building, fencing, trails, or access roads.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- AI CHAT WIDGET -->
-  <div id="chatWidget"
-       class="fixed bottom-6 right-6 w-80 h-[28rem] bg-white border rounded-lg shadow-xl hidden flex flex-col z-50">
-
-    <!-- Chat Header -->
-    <div class="bg-forest text-white p-3 font-semibold flex justify-between items-center">
-      <span>IronPaw AI Foreman</span>
-      <button id="closeChat">✕</button>
-    </div>
-
-    <!-- Messages -->
-    <div id="chatMessages"
-         class="flex-1 p-3 space-y-2 text-sm overflow-y-auto bg-gray-50">
-      <div class="bg-white p-2 rounded shadow text-gray-700">
-        👋 Hi! Tell me about your land and I’ll help with pricing and availability.
-      </div>
-    </div>
-
-    <!-- Input -->
-    <form id="chatForm" class="p-3 border-t flex gap-2">
-      <input
-        id="chatInput"
-        type="text"
-        placeholder="Type your message..."
-        class="flex-1 border rounded px-2 py-1 text-sm"
-        required
-      />
-      <button
-        type="submit"
-        class="bg-forest text-white px-3 rounded text-sm font-semibold">
-        Send
-      </button>
-    </form>
+<div class="chat-widget">
+  <div class="chat-header">
+    IronPaw AI Foreman
+    <span style="cursor:pointer;" onclick="closeChat()">✕</span>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="bg-iron text-white py-8">
-    <div class="max-w-7xl mx-auto px-6 text-center text-sm">
-      <p>© 2026 IronPaw Forestry, LLC</p>
-      <p class="mt-2">
-        <a href="mailto:ironpawforestry@gmail.com" class="underline">
-          ironpawforestry@gmail.com
-        </a>
-        &nbsp;·&nbsp;
-        <a href="tel:13464766729" class="underline">
-          1-346-IRONPAW
-        </a>
-      </p>
-    </div>
-  </footer>
+  <div id="chatBody" class="chat-body"></div>
 
-  <!-- CHAT LOGIC -->
-  <script>
-    const openBtn = document.getElementById('openChat');
-    const closeBtn = document.getElementById('closeChat');
-    const chat = document.getElementById('chatWidget');
-    const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
-    const chatMessages = document.getElementById('chatMessages');
+  <div class="chat-input">
+    <input id="chatInput" type="text" placeholder="Type your message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
 
-    openBtn.onclick = () => chat.classList.remove('hidden');
-    closeBtn.onclick = () => chat.classList.add('hidden');
+<script>
+  // -----------------------------
+  // SESSION MEMORY (CRITICAL)
+  // -----------------------------
+  let sessionId = localStorage.getItem("ironpaw_session_id");
 
-    function addMessage(text, from) {
-      const msg = document.createElement('div');
-      msg.className =
-        from === 'user'
-          ? 'bg-forest text-white p-2 rounded ml-auto max-w-[80%]'
-          : 'bg-white text-gray-700 p-2 rounded shadow max-w-[80%]';
-      msg.textContent = text;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("ironpaw_session_id", sessionId);
+  }
 
-    chatForm.onsubmit = async (e) => {
-      e.preventDefault();
+  const chatBody = document.getElementById("chatBody");
+  const chatInput = document.getElementById("chatInput");
 
-      const text = chatInput.value.trim();
-      if (!text) return;
+  function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.className = "msg " + sender;
+    div.innerText = text;
+    chatBody.appendChild(div);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
 
-      addMessage(text, 'user');
-      chatInput.value = '';
+  function closeChat() {
+    document.querySelector(".chat-widget").style.display = "none";
+  }
 
-      addMessage('Thinking…', 'bot');
+  // Initial greeting (only once per browser)
+  if (!localStorage.getItem("ironpaw_greeted")) {
+    addMessage(
+      "👋 Hi! Tell me about your land and I’ll help with pricing and availability.",
+      "bot"
+    );
+    localStorage.setItem("ironpaw_greeted", "yes");
+  }
 
-      try {
-        const response = await fetch('/.netlify/functions/dispatch', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contract_version: "1.0",
-            session: {
-              session_id: crypto.randomUUID(),
-              channel: "web_chat",
-              source: "website",
-              started_at: new Date().toISOString()
-            },
-            intent: {
-              primary: "general_inquiry",
-              confidence: 0.5
-            },
-            entities: {
-              lead: {},
-              project: {},
-              estimate: {},
-              communications: [
-                {
-                  channel: "Chat",
-                  direction: "Incoming",
-                  message_summary: text,
-                  sent_at: new Date().toISOString(),
-                  follow_up_needed: false
-                }
-              ]
-            },
-            actions: [
-              { "type": "log_communication" }
-            ]
-          })
-        });
+  async function sendMessage() {
+    const message = chatInput.value.trim();
+    if (!message) return;
 
-        const data = await response.json();
-        chatMessages.lastChild.remove();
+    addMessage(message, "user");
+    chatInput.value = "";
 
-        if (data.ok) {
-          addMessage(
-            "Got it. I’ll ask a few quick questions next to get you an estimate.",
-            'bot'
-          );
-        } else {
-          addMessage(
-            "I hit a snag. Please try again or call 1-346-IRONPAW.",
-            'bot'
-          );
-        }
-      } catch (err) {
-        chatMessages.lastChild.remove();
+    try {
+      const response = await fetch("/.netlify/functions/dispatch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-session-id": sessionId
+        },
+        body: JSON.stringify({
+          message: message
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.reply_text) {
+        addMessage(data.reply_text, "bot");
+      } else {
         addMessage(
-          "Network issue. Please try again in a moment.",
-          'bot'
+          "I hit a snag. Please try again or call 1-346-IRONPAW.",
+          "bot"
         );
       }
-    };
-  </script>
+    } catch (err) {
+      addMessage(
+        "I hit a snag. Please try again or call 1-346-IRONPAW.",
+        "bot"
+      );
+    }
+  }
+</script>
 
 </body>
 </html>
