@@ -1,6 +1,6 @@
 /**
  * Netlify Function: dispatch
- * IronPaw Forestry — Conversation Engine (FINALIZED)
+ * IronPaw Forestry — Contact Capture + Lead Creation
  * FULL FILE REPLACEMENT
  */
 
@@ -46,6 +46,12 @@ function getNextQuestion(step) {
       return "Is the area easily accessible for a skid steer and trailer?";
     case "access":
       return "What city or county is the property located in?";
+    case "location":
+      return "Before I prepare an estimate, who should I address it to?";
+    case "contact_name":
+      return "What’s the best phone number to reach you?";
+    case "contact_phone":
+      return "What’s a good email for sending the estimate? (You can skip if you prefer text only.)";
     default:
       return null;
   }
@@ -91,29 +97,15 @@ export async function handler(event) {
   }
 
   const fields = record.fields;
-  const step = fields["Step"] || "start";
+  const step = fields.Step || "start";
 
   // -------------------------
-  // STOP CONDITION
+  // STOP: LEAD ALREADY CREATED
   // -------------------------
   if (step === "complete") {
-    const summary = `
-Here’s what I’ve got so far:
-
-• Acreage: ${fields.Acreage}
-• Density: ${fields.Density}
-• Terrain: ${fields.Terrain}
-• Access: ${fields.Access}
-• Location: ${fields.Location}
-
-This looks like a good candidate for forestry mulching.
-The next step would be a site visit or a formal estimate.
-
-Would you like me to schedule that?
-`;
-
     return respond(200, {
-      reply_text: summary.trim(),
+      reply_text:
+        "Thanks — I have everything I need. I’ll prepare an estimate and follow up shortly.",
     });
   }
 
@@ -127,6 +119,9 @@ Would you like me to schedule that?
   if (step === "density") updates.Terrain = message;
   if (step === "terrain") updates.Access = message;
   if (step === "access") updates.Location = message;
+  if (step === "location") updates.ContactName = message;
+  if (step === "contact_name") updates.Phone = message;
+  if (step === "contact_phone") updates.Email = message;
 
   const stepOrder = [
     "start",
@@ -135,6 +130,9 @@ Would you like me to schedule that?
     "terrain",
     "access",
     "location",
+    "contact_name",
+    "contact_phone",
+    "complete",
   ];
 
   const nextStep =
@@ -142,22 +140,41 @@ Would you like me to schedule that?
 
   updates.Step = nextStep;
 
-  const nextQuestion = getNextQuestion(nextStep);
-  if (nextQuestion) {
-    updates["Last Question"] = nextQuestion;
-  }
-
   await base("Conversations").update(record.id, updates);
+
+  // -------------------------
+  // CREATE LEAD (ONCE)
+  // -------------------------
+  if (nextStep === "complete") {
+    const notes = `
+Website AI intake:
+• Acreage: ${fields.Acreage}
+• Density: ${fields.Density}
+• Terrain: ${fields.Terrain}
+• Access: ${fields.Access}
+• Location: ${fields.Location}
+`;
+
+    await base("Leads").create({
+      "Last Name": updates.ContactName || fields.ContactName,
+      "Phone": updates.Phone || fields.Phone,
+      "Email": updates.Email || fields.Email || "",
+      "City": fields.Location,
+      "Lead Source": "AI Website",
+      "Status": "New",
+      "Notes": notes.trim(),
+    });
+
+    return respond(200, {
+      reply_text:
+        "Thanks — I’ve got everything I need. I’ll put together an estimate and follow up shortly.",
+    });
+  }
 
   // -------------------------
   // ASK NEXT QUESTION
   // -------------------------
-  if (!nextQuestion) {
-    return respond(200, {
-      reply_text:
-        "Thanks — I have everything I need to prepare an estimate. Would you like to move forward?",
-    });
-  }
+  const nextQuestion = getNextQuestion(nextStep);
 
   return respond(200, {
     reply_text: nextQuestion,
