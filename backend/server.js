@@ -15,7 +15,6 @@ import appointmentsRouter from './routes/appointments.js';
 import conversationsRouter from './routes/conversations.js';
 import jobsRouter from './routes/jobs.js';
 import analyticsRouter from './routes/analytics.js';
-import voiceRouter from './routes/voice.js';
 
 dotenv.config();
 
@@ -49,7 +48,6 @@ app.use('/api/appointments', appointmentsRouter);
 app.use('/api/conversations', conversationsRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/analytics', analyticsRouter);
-app.use('/api/voice', voiceRouter);
 
 // 404
 app.use((req, res) => {
