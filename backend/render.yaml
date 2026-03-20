@@ -23,6 +23,14 @@ services:
         sync: false
       - key: TWILIO_PHONE_NUMBER
         sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_CHUCK_VOICE_ID
+        sync: false
+      - key: ELEVENLABS_SCOUT_VOICE_ID
+        sync: false
+      - key: BASE_URL
+        sync: false
 
 databases:
   - name: ironpaw-db
